@@ -1,0 +1,31 @@
+# Local editor and operating-system files
+.DS_Store
+__MACOSX/
+._*
+*.swp
+*.swo
+
+# Export backups are not the maintained skill source
+*.bak
+*.bak-*
+*.zip
+
+# Local credentials and environment overrides
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+
+# Dependencies and generated caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+node_modules/
+
+# Keep live coordinator goals, sessions, logs and evidence outside this repository
+.crd-runtime/
+.skill-test-output/
+*.log
