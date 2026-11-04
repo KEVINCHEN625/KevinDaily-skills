@@ -1,0 +1,2 @@
+# Only used by repository validation; not needed to run the installed skill.
+PyYAML==6.0.3

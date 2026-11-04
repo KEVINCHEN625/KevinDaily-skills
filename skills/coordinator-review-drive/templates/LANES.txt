@@ -1,0 +1,7 @@
+# Lane list for scripts/wait-lanes.sh — one lane per line:  <out-dir> [label] [stall-seconds]
+# Relative paths resolve against G. '#' starts a comment. Keep finished lanes or delete their lines; finished+seen
+# lanes are ignored. After editing, start a new waiter (the list is read once).
+# Example:
+# lanes/area-a/out-fix-retry-1        area-a-fix
+# STAGE-REVIEWS/SECOND-D123/out       second-review-d123   2400
+# e2e-web/out-retest-stage4           retest-stage4        3600

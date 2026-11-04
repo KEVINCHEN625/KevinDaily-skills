@@ -1,0 +1,93 @@
+{
+  "goal": "<GOAL TITLE>",
+  "goal_source": "<path to the goal/requirements document and its sha256, if any>",
+  "created_utc": "<YYYY-MM-DD>",
+  "updated_utc": "<YYYY-MM-DDTHH:MM:SSZ>",
+  "user_language": "<zh-CN | en | ...>",
+  "coordinator": {
+    "actual_model": "<model id of this coordinator session>",
+    "session": "<session id or window name>",
+    "role": "coordinator / 主控 (review and drive)"
+  },
+  "mode": {
+    "quota": "normal",
+    "notes": "normal | low (coordinator reads only first lines/verdicts; reviews shift per ALLOCATION.md low-quota row)"
+  },
+  "environment": {
+    "confirmed_utc": "<when the user confirmed>",
+    "decision": "D-001",
+    "agents": [
+      {
+        "role": "main-implementer",
+        "tool": "<codex | dsh | zcode | claude-subagent | claude-headless>",
+        "model": "<exact model id>",
+        "effort": "<high | xhigh | ...>",
+        "available": true,
+        "quota_notes": "<window/credits/scarcity>",
+        "verified_by": "<probe file or user statement>"
+      }
+    ],
+    "fallback_order": ["<user-given order, e.g. reviewer-model executor trial>", "<main implementer>", "<strong model within quota>"],
+    "provider_status": {
+      "<agent>": { "status": "ok | quota-exhausted | credits-exhausted | auth-revoked", "since_utc": "<UTC>", "reset_or_fix": "<reset date or user command>", "decision": "D-<NNN>" }
+    },
+    "shared_services": ["<long-lived instance / shared headless browser port + supervisor, torn down only at goal close>"]
+  },
+  "authority": {
+    "push": false,
+    "merge_to_main": false,
+    "deploy": "<none | local test instances only | ...>",
+    "real_providers": "<none | bounded: ...>",
+    "user_data_upload": false,
+    "notes": "user grants recorded in DECISIONS with quotes"
+  },
+  "sessions": {
+    "<session-name>": { "tool": "codex", "model": "<model>", "task_type": "<area/task type>" }
+  },
+  "baseline": {
+    "repo": "<path>",
+    "integration_branch": "<branch>",
+    "head": "<sha>",
+    "dirty_entries": 0,
+    "baseline_failure_ids_log": "<path to saved raw log used for new-failure-ID comparison>",
+    "comparison_key": "node + phase + signature",
+    "last_broad_run": { "sha": "<sha>", "utc": "<UTC>", "failed": 0, "errors_not_executed": 0, "report": "<path>" }
+  },
+  "gate": {
+    "wording": "<exact gate as decided, e.g. 0 new failures by node/phase/signature + reviewed per-node ledger>",
+    "decision": "D-<NNN>",
+    "ledger": "<path or none>"
+  },
+  "lanes": [
+    {
+      "id": "<lane id>",
+      "title": "<short>",
+      "decision": "D-<NNN>",
+      "owner_session": "<session-name>",
+      "worktree": "<path>",
+      "branch": "<branch>",
+      "base": "<sha>",
+      "out_dir": "<G/lanes/.../out-...>",
+      "state": "QUEUED | RUNNING | REVIEW | CHANGES_REQUESTED | APPROVED | COMMITTED | MERGED | DEPLOYED | VERIFIED_LIVE | BLOCKED",
+      "commit": "<sha or null>",
+      "next": "<the very next action>"
+    }
+  ],
+  "batches": [
+    {
+      "id": "batch-d<NNN>",
+      "base": "<sha>",
+      "merged": ["<branch>@<sha>"],
+      "head": "<sha>",
+      "verify": "<VERIFIED | FAILED + decision>",
+      "native_tests": "<results run by coordinator>",
+      "deploy": "<not deployed | deployed decision D-NNN>",
+      "retests": ["<retest ids and verdicts>"],
+      "resources_teardown": "<done | pending: list>"
+    }
+  ],
+  "followups": ["<must be fixed before final integration — with decision ids>"],
+  "backlog": ["<post-merge / phase-2 items — with decision ids>"],
+  "pending_user": ["<only genuinely new authority or major requirement changes, with exact ! commands if any>"],
+  "next": ["<ordered next actions for a resuming coordinator>"]
+}

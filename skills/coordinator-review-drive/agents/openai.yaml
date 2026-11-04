@@ -1,0 +1,4 @@
+interface:
+  display_name: "Coordinator Review Drive"
+  short_description: "Coordinate local agents, reviews, and project progress"
+  default_prompt: "Use $coordinator-review-drive to coordinate this project, verify available harnesses, assign bounded tasks, independently review changes, and record model lessons."
