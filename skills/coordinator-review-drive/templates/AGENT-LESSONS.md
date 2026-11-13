@@ -1,11 +1,29 @@
 # AGENT LESSONS (coordinator-maintained; cite this file in every implementer/tester task card)
 
-Format per lesson: symptom → root cause → from now on. Add project lessons at the end with the D-number that proved
-them; write new entries in the user's language. Seeded from a long multi-agent closeout run (generalized).
+Format per lesson: symptom → root cause → from now on → **enforced by:** <script/check/test that fails, or "text only">.
+A text-only lesson that repeats must be encoded in the same change (pstack encode-lessons-in-structure). Add project
+lessons at the end with the D-number that proved them; write new entries in the user's language. Seeded from a long
+multi-agent closeout run (generalized).
+Keep this file under 24 KB (`goal-check.sh` → RULES): a lesson with an enforcer shrinks to one line naming it, a lesson
+whose mistake can no longer happen is deleted, a changed lesson replaces the old text (references/STATE.md §4).
 
 These are author-observed lessons, not universal model benchmarks. Record the current harness, actual model,
 task type, date and evidence when applying or updating a lesson. This file is maintained per goal; the skill does
 not automatically synchronize a global model-performance database.
+
+## Encoded lessons (a check fails; the text below may shrink to one line)
+| Mistake class | Enforced by |
+|---|---|
+| card without goal / done-evidence / scope / track; unknown card type | `check-card.sh` (refusal in `launch-lane.sh`) |
+| reply skips items, no command output, no RED, finding without proof, review without coverage | `check-report.sh` (printed by `wait-lane.sh`) |
+| reused out dir; side lane while stuck or over the WIP limit | `launch-lane.sh` refusal |
+| one lane's kill takes down siblings | own process group + `kill-lane.sh` |
+| test run on stale or foreign code; unread instance logs; page run before a passing replay | `preflight-run.sh` |
+| commit that never happened; trailers in the wrong paragraph | `lane-commit.sh`, `lane-commit-msg.sh` |
+| merge with a failed or un-runnable check; merge under a running test; merged but not live | `merge-lane.sh` |
+| computed or empty path passed to a delete | `safe-rm.sh` |
+| goal not advancing unnoticed; stale handoff; rule files growing | `goal-check.sh` |
+Every other lesson below is text only: the second time one repeats, encode it and add a row here.
 
 ## A. Verification and acceptance
 1. **Passed in a test host, never wired into the real startup path.** Factories/fakes injected the dependency the

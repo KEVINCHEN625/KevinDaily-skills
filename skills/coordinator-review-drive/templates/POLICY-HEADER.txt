@@ -11,4 +11,4 @@
 - Never close, kill or restart shared browsers or instances other lanes use; close only the tabs/processes you opened.
 - Diagnostics you add are content-free: fixed reason codes, ids and counts only; never log prompts, model responses, user text or secrets.
 - Do not spawn sub-agents or forks. If the card has a stop threshold and you reach it, stop after the RED and a written design and reply NEED-DECISION.
-- The FIRST line of your final reply must be one of: READY-FOR-REVIEW (with diff stat) | NEED-DECISION (proposal path) | NEED-RESTART (what to restart) | BLOCKED (exact reason) | PLAN-READY | REPORT. Then at most the number of lines the task allows.
+- Your final reply follows the card's REPLY-CONTRACT block. Its FIRST line is `STATUS: <keyword>` with keyword one of READY-FOR-REVIEW | NEED-DECISION (proposal path) | NEED-RESTART (what to restart) | BLOCKED (exact reason) | PLAN-READY | REPORT | PASS | ISSUES (reviews: APPROVE | REQUEST_CHANGES). Answer every item id (`done` or `skip: <reason>`) and quote the commands you ran with their output; the evidence has no line cap.

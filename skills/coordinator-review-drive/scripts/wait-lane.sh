@@ -10,13 +10,18 @@
 #   LANE STALL idle=<s>s                              no file in the out-dir changed for --stall seconds
 #   LANE TIMEOUT still-running                        --max reached; the lane is still alive — re-arm a waiter
 #   PID EXITED / PID STALL / PID TIMEOUT              the --pid form
-# followed by known error signatures found in the logs and the tail of the output.
+#   LANE USAGE-ERROR ...                              bad arguments or a missing out dir (reported at once)
+# When the lane was started by launch-lane.sh with a linted card (CARD_PATH present, no LEGACY_CARD), the second line
+# is the reply check: REPORT-CHECK PASS|FAIL (check-report.sh). FAIL = not accepted, whatever the first line says.
+# Then known error signatures found in the logs and the tail of the output.
 # Design rules (lessons from missed reports): no shell globs, no unanchored `pgrep -f`
 # (it matches the waiter's own command line), liveness from a recorded PID, stall from
 # the newest mtime of ANY file in the out-dir (falls back to the launch time when no log exists).
 set -u
 stall=2400; max=21600; poll=30; out=""; output=""; pid=""; log=""
 while [ $# -gt 0 ]; do
+  case "$1" in --stall|--max|--poll|--output|--pid|--log)
+    [ $# -ge 2 ] || { echo "LANE USAGE-ERROR $1 needs a value"; exit 0; };; esac
   case "$1" in
     --stall) stall="$2"; shift 2;;
     --max) max="$2"; shift 2;;
@@ -27,6 +32,7 @@ while [ $# -gt 0 ]; do
     *) if [ -z "$out" ]; then out="$1"; elif [[ "$1" =~ ^[0-9]+$ ]]; then poll="$1"; fi; shift;;  # legacy: wait-lane.sh <out-dir> [poll-seconds]
   esac
 done
+case "$stall$max$poll" in *[!0-9]*|"") echo "LANE USAGE-ERROR --stall/--max/--poll need numbers"; exit 0;; esac
 now() { date +%s; }
 mtime() {  # GNU first: GNU `stat -f` can emit filesystem text even when it fails.
   local stamp
@@ -64,6 +70,8 @@ if [ -n "$pid" ]; then
 fi
 
 [ -n "$out" ] || { echo "LANE USAGE-ERROR no out-dir"; exit 0; }
+# a mistyped out dir used to wait the whole --stall time and then report STALL
+[ -d "$out" ] || { echo "LANE USAGE-ERROR out-dir does not exist: $out"; exit 0; }
 launched=$(mtime "$out/LAUNCHED_UTC"); [ "$launched" -eq 0 ] && launched=$start
 wpid=""; [ -f "$out/WRAPPER_PID" ] && wpid=$(cat "$out/WRAPPER_PID")
 [ -n "$wpid" ] || { [ ! -f "$out/PID" ] || wpid=$(cat "$out/PID"); }
@@ -88,8 +96,13 @@ while :; do
   sleep "$poll"
 done
 echo "$verdict  dir=$out"
+# REPLY-CONTRACT check (check-report.sh) when the lane was launched with a linted card
+if [ -n "$output" ] && [ -f "$out/CARD_PATH" ] && [ ! -f "$out/LEGACY_CARD" ]; then
+  bash "$(cd "$(dirname "$0")" && pwd)/check-report.sh" "$output" "$(cat "$out/CARD_PATH")" 2>/dev/null | head -1
+fi
 logs=(); while IFS= read -r -d '' f; do logs+=("$f"); done < <(find "$out" -maxdepth 1 -type f \( -name '*.log' -o -name 'LAST-MESSAGE.md' -o -name 'REVIEW.md' \) -print0 2>/dev/null)
 [ ${#logs[@]} -gt 0 ] && signatures "${logs[@]}"
 if [ -n "$output" ] && [ -s "$output" ]; then echo "--- tail $output"; tail -c 2500 "$output"; else
-  for f in "${logs[@]}"; do echo "--- tail $f"; tail -n 6 "$f" | cut -c1-400; done; fi
+  # bash 3.2 + set -u: expanding an empty array aborts, so guard it (the waiter must always exit 0)
+  if [ ${#logs[@]} -gt 0 ]; then for f in "${logs[@]}"; do echo "--- tail $f"; tail -n 6 "$f" | cut -c1-400; done; fi; fi
 exit 0

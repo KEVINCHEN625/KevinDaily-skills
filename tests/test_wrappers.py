@@ -47,12 +47,16 @@ class WrapperTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="crd-offline-")
         self.addCleanup(self.temp.cleanup)
-        self.base = Path(self.temp.name)
+        self.base = Path(self.temp.name).resolve()  # macOS: /var -> /private/var
         self.goal = self.base / "goal"
         self.cwd = self.base / "work tree"
         self.cwd.mkdir()
         self.prompt = self.base / "task.md"
-        self.prompt.write_text("Do the bounded stub task.\n", encoding="utf-8")
+        # A linted card: launch-lane.sh refuses a card without the required header (check-card.sh).
+        self.prompt.write_text(
+            "CARD: research\nTRACK: main\nGOAL: answer one bounded stub question.\n"
+            "ITEMS:\nI1: do the bounded stub task\nREPLY-CONTRACT — STATUS, GOAL, I1, EVIDENCE.\n",
+            encoding="utf-8")
         self.bin = self.base / "bin"
         self.bin.mkdir()
         self.record = self.base / "calls.json"
@@ -179,14 +183,18 @@ class WrapperTests(unittest.TestCase):
                                  "high", self.prompt, out)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(result.stdout.strip().isdigit())
+        self.assertTrue((out / "WRAPPER_START").is_file())
+        self.assertTrue(os.path.samefile((out / "CARD_PATH").read_text().strip(), self.prompt))
         result = self.run_script("wait-lane.sh", out, "--poll", 1, "--max", 5)
         self.assertTrue(result.stdout.startswith("LANE DONE exit=0 output=ok"), result.stdout)
+        # The stub reply has no STATUS/GOAL/item lines, so the reply contract check must flag it.
+        self.assertTrue(result.stdout.splitlines()[1].startswith("REPORT-CHECK FAIL"), result.stdout)
         self.assert_finished(out)
 
     def test_wait_lane_detects_dead_wrapper_from_direct_pid_marker(self):
         out = self.out("dead")
         out.mkdir()
-        dead_process = subprocess.Popen(["/bin/true"])
+        dead_process = subprocess.Popen([shutil.which("true") or "/usr/bin/true"])
         dead_process.wait()
         (out / "PID").write_text(str(dead_process.pid))
         result = self.run_script("wait-lane.sh", out, "--poll", 1, "--max", 5)

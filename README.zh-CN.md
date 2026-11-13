@@ -10,7 +10,7 @@
 
 | Skill | 解决什么问题 | 使用入口 |
 | --- | --- | --- |
-| **`coordinator-review-drive`** | 调度本机 coding harness，结合能力与可用额度分配任务，审核交付结果，记录不同模型的表现，供后续任务分配参考。 | [使用说明](skills/coordinator-review-drive/README.md) · [完整示例](docs/examples/coordinator-review-drive.md) |
+| **`coordinator-review-drive`** | 通过本机 coding harness 把一个主目标推进到可检查的完成状态：结合能力与额度分配任务，凭证据审核交付，发现推进卡住，并记录经验供后续任务参考。 | [使用说明](skills/coordinator-review-drive/README.md) · [完整示例](docs/examples/coordinator-review-drive.md) |
 
 ## 安装一个 skill
 
@@ -32,13 +32,17 @@ npx skills add KEVINCHEN625/KevinDaily-skills --list
 
 **Coordinator Review Drive** 让一个 agent 担任项目主控，组织其他 agents 承担开发、调查、测试与独立审核。
 
-它包含五个主要环节：
+它包含以下环节：
 
 - **发现环境：**先检查常见本地 CLI 的位置、版本和配置是否存在，再分配任务。
 - **分配任务：**结合已确认的模型、任务难度、额度和过去表现，选择执行者与审核者。
-- **并行推进：**独立任务使用不同 worktree，每条任务线都有任务卡和单独的输出目录。
-- **独立审核：**根据代码、测试和运行证据检查结果；重要设计交给更适合的模型交叉审核。
-- **持续记录：**将决策、任务状态、模型分工和经验写入文件，便于跨会话接续。
+- **一个主目标，限制并行数量：**每项工作标明主线或支线；同时最多 2 项支线、共 6 项，支线运行时主线不能空闲。
+- **并行推进：**独立任务使用不同 worktree，每条任务线都有经过校验的任务卡和单独的输出目录；每条任务线在独立进程组中运行，并由一个 waiter 等待结果。
+- **卡住检测与解卡流程：**运行台账发现连续两次页面测试失败、同一阻塞反复出现，或目标 12 小时没有进展时，强制在下一次页面测试前完成六步：一次收齐全部阻塞、预判后续路径、检验共同前提、全路径回放、削减支线、带选项升级给用户。
+- **先回放，再页面测试：**用低成本的全路径回放一次找出全部阻塞；预检确认端口上实际运行的是哪份代码、读取实例日志，没有通过回放就拒绝页面测试。
+- **可信的汇报：**任务卡和回复遵循可校验的契约（逐项回答、命令及其原始输出、修复前的失败证据）；审核发现必须附带证明，一次覆盖路径矩阵的每一行，并统计之前漏掉的问题。
+- **安全操作：**提交后证明提交确实发生；只有全部检查通过且没有测试在运行时才合并；只停止指定的任务线；只在受保护的根目录内删除计算得到的路径。
+- **持续记录：**一个 `HANDOFF.md` 续接文件，加上决策、运行台账、模型分工和经验，便于在上下文压缩和新会话后接续。
 
 例如，可以这样开始：
 
@@ -63,6 +67,8 @@ npx skills add KEVINCHEN625/KevinDaily-skills --list
 
 **发现 CLI 不等于已确认账号和模型可用，也不等于已经适配所有 harness。** 工作流程会在正式派发前确认这些条件。模型经验来自具体项目的实际表现，不是通用排行榜，也不涉及训练模型。
 
+2.0.0 版借鉴并注明出处的思路来自 Lauren Tan 的 [pstack](https://github.com/cursor/plugins/tree/main/pstack) 和 [Matt Pocock 的 skills](https://github.com/mattpocock/skills)，两者均为 MIT 许可。详见该 skill 的[来源说明](skills/coordinator-review-drive/references/SOURCES.md)和[第三方声明](skills/coordinator-review-drive/THIRD_PARTY_NOTICES.md)。
+
 ## 仓库组织
 
 | 路径 | 用途 |
@@ -70,7 +76,8 @@ npx skills add KEVINCHEN625/KevinDaily-skills --list
 | `skills/<skill-name>/SKILL.md` | Agent 读取的技能入口与流程指令 |
 | `skills/<skill-name>/scripts/` | 随该 skill 一起分发的执行脚本 |
 | `skills/<skill-name>/templates/` | 任务卡、审核表和项目记录模板 |
-| `skills/coordinator-review-drive/PLAYBOOK.md` | 可供不同 agent 阅读的完整调度手册 |
+| `skills/<skill-name>/references/` | 按触发条件读取的详细流程说明 |
+| `skills/coordinator-review-drive/PLAYBOOK.md` | 给非 Claude Code agent 的简短说明 |
 | `docs/installation.md` | 安装方式、依赖和适配范围 |
 | `docs/examples/` | 具体使用示例 |
 

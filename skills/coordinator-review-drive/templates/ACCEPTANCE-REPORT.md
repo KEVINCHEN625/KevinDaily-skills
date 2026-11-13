@@ -13,6 +13,9 @@ then what needs the user. Keep paths/ids as they are; numbers with units; mark I
 | C <name> | BLOCKED | <blocked by B; not run> | re-run after B |
 | D <name> | NOT RUN | <why> | <when> |
 
+Progress on the main goal: <reached>/<target> (best so far <n>, since <UTC>). Known open blockers: <all of them, one
+  line each>. Replay on this build: PASS | FAIL <n>/<m> | no harness yet.
+Estimate: <date — only when the replay passes on this build> | "no date yet: <what is still unknown>".
 Model calls this round: <before>→<after> (<breakdown>).
 Gate status: <e.g. "gate passed with 0 new failures; 37 reviewed ledger entries"> (never "green" unless it is).
 Running now: <lanes, one line each>.

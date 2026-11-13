@@ -24,8 +24,9 @@ You are an implementer working inside a git worktree (your current directory). R
 - Finish by writing <OUT>/REPORT.md: what changed (file:line), root cause (CONFIRMED vs INFERRED), failing→passing
   evidence, every test command with pass/fail/skip counts and failures compared with the baseline by node, phase and signature, open items; and
   save `git diff` to <OUT>/lane.diff (include untracked files via `git diff --no-index /dev/null <file>`).
-- RESOURCE RECLAIM + HANDOFF (mandatory, SKILL.md §6.1): remove every temp dir/basetemp/test DB/cluster/process/port/
+- RESOURCE RECLAIM + HANDOFF (mandatory, <SKILL>/references/SAFETY.md §3): remove every temp dir/basetemp/test DB/cluster/process/port/
   browser page/scratch worktree you created when the test ends (trap; recorded PIDs only; own paths only). End REPORT.md
   and the reply with the RESOURCE-HANDOFF table (<SKILL>/templates/RESOURCE-HANDOFF.md). No table = not accepted.
-- Final reply: first line READY-FOR-REVIEW / NEED-DECISION / NEED-RESTART / BLOCKED, then a ≤10-line summary;
-  include the complete report instead when <OUT> is not writable.
+- Final reply: the card's REPLY-CONTRACT (<SKILL>/templates/TASK-CARD.md §0); first line
+  `STATUS: READY-FOR-REVIEW | NEED-DECISION | NEED-RESTART | BLOCKED`; include the complete report instead when <OUT>
+  is not writable.

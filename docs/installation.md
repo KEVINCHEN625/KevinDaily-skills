@@ -9,12 +9,14 @@
 | Requirement | Used for |
 | --- | --- |
 | Node.js and npm | Installation through `npx skills`; not required for a manual copy of the skill |
-| Zsh, Bash, Python 3, Perl, and Git | Bundled scripts, records, wrapper execution, and worktrees |
+| Zsh, Bash, Python 3, and Git | Bundled scripts, records, wrapper execution, worktrees, and the commit/merge/serving checks |
+| Perl | `launch-lane.sh` starts each lane in its own process group with `POSIX::setsid`; `scan-logs.sh` and `probe-agents.sh` also use it |
+| `lsof` | `check-serving.sh` and `preflight-run.sh` prove which process and directory serve each port |
 | Selected worker CLIs | Codex, Claude Code, ZCode, or `dsh`, according to the adapters you intend to use |
 | Working provider/account configuration | Live model calls through those CLIs |
-| Optional browser tools | Chrome or Chromium, `chrome-devtools-mcp`, `curl`, and `lsof` for browser-testing workflows |
+| Optional browser tools | Chrome or Chromium, `chrome-devtools-mcp`, and `curl` for browser-testing workflows |
 
-Some integrations are macOS-specific. ZCode’s optional `run-zcode-test-exec.sh` uses `sandbox-exec`; its default provider path points into the ZCode macOS app bundle. The Chrome supervisor defaults to the macOS Chrome binary and accepts a different executable path. Other adapters still require their documented shells and CLI behavior. Native Windows launchers are not included.
+The bash checks run on macOS bash 3.2 and on Linux; they handle BSD and GNU `stat`, `date`, `df` and `ps`. Some integrations are macOS-specific. ZCode’s optional `run-zcode-test-exec.sh` uses `sandbox-exec`; its default provider path points into the ZCode macOS app bundle. The Chrome supervisor defaults to the macOS Chrome binary and accepts a different executable path. Other adapters still require their documented shells and CLI behavior. Native Windows launchers are not included.
 
 Installing a skill does not install a harness, authenticate an account, or grant model access. Live model calls use the account and allowance configured in the selected harness.
 
@@ -58,9 +60,9 @@ cd KevinDaily-skills
 CRD_SKILL_ROOT="$PWD/skills/coordinator-review-drive"
 ```
 
-You can point a file-capable coordinator directly at `SKILL.md` or `PLAYBOOK.md` in this directory. For native skill discovery, copy the **whole** `coordinator-review-drive` directory into the skill location documented by your agent. For example, Claude Code supports `~/.claude/skills/coordinator-review-drive/`.
+You can point a file-capable coordinator directly at `SKILL.md` in this directory (`PLAYBOOK.md` is a short note for agents that are not Claude Code). For native skill discovery, copy the **whole** `coordinator-review-drive` directory into the skill location documented by your agent. For example, Claude Code supports `~/.claude/skills/coordinator-review-drive/`.
 
-Keep `scripts/`, `templates/`, and `PLAYBOOK.md` with `SKILL.md`; copying only the entry-point file leaves required resources behind. Invoke Zsh scripts with `zsh` and the launcher/waiter scripts with `bash`, as shown below.
+Keep `references/`, `scripts/`, `templates/`, and `PLAYBOOK.md` with `SKILL.md`; copying only the entry-point file leaves required resources behind. Invoke the Zsh wrappers with `zsh` and the bash checks, launcher and waiter with `bash`, as shown below.
 
 ## Initialize a first goal
 
@@ -74,7 +76,13 @@ zsh "$CRD_SKILL_ROOT/scripts/init-goal.sh" "$CRD_GOAL_DIR" "Demo project"
 zsh "$CRD_SKILL_ROOT/scripts/probe-agents.sh"
 ```
 
-Choose a goal directory outside the product repository and outside this skills repository. The initializer creates records and working directories, preserving records that already exist. It does not call a model. The environment probe checks executable versions, configuration presence, and host capacity; it does not submit a model task or verify that a provider account works.
+Choose a goal directory outside the product repository and outside this skills repository. The initializer creates records (including `HANDOFF.md`) and working directories, preserving records that already exist. It does not call a model. The environment probe checks executable versions, configuration presence, and host capacity; it does not submit a model task or verify that a provider account works.
+
+Fill `HANDOFF.md` with the main goal, its checkable predicate and the environment, then run the wake-up check that the coordinator repeats at every start, resume and notification:
+
+```bash
+bash "$CRD_SKILL_ROOT/scripts/goal-check.sh" "$CRD_GOAL_DIR"
+```
 
 Next, give the coordinator your goal and acceptance criteria. Establish the usable harnesses, exact models, cost or quota limits, and authority for project actions, reusing decisions you have already supplied. The coordinator records the allocation before it launches live work.
 
@@ -92,7 +100,7 @@ See the [first-goal walkthrough](examples/coordinator-review-drive.md) and the [
 | ZCode test execution | `run-zcode-test-exec.sh` | Requires macOS `sandbox-exec`; see the script header for its allowed write locations. |
 | DeepSeek Harness task | `run-dsh.sh` | Pass provider, model, effort, and mode; the selected `dsh` profile must already work. |
 
-`probe-agents.sh` also checks several common tools without providing a runner for each of them. You can add binary names to the probe invocation, but a new execution harness needs an adapter that follows the output contract in `PLAYBOOK.md`.
+`probe-agents.sh` also checks several common tools without providing a runner for each of them. You can add binary names to the probe invocation, but a new execution harness needs an adapter that follows the out-dir contract in [`references/DISPATCH.md`](../skills/coordinator-review-drive/references/DISPATCH.md) §5.
 
 ## Model selection and local configuration
 
@@ -108,7 +116,7 @@ Keep machine-specific configuration and generated project records local. Review 
 
 Browser testing needs a dedicated test profile and a configured DevTools endpoint. `chrome-supervisor.sh` accepts the port, profile directory, and an optional browser executable. `run-codex-web.sh` accepts `CRD_BROWSER_URL`, `CRD_EVIDENCE_ROOT`, `CRD_CHROME_MCP_COMMAND`, and `CRD_CHROME_MCP_ARGS_JSON`.
 
-Start with the [script headers](../skills/coordinator-review-drive/scripts/) and the browser sections of the [playbook](../skills/coordinator-review-drive/PLAYBOOK.md). Browser setup is optional for projects that do not need page testing.
+Start with the [script headers](../skills/coordinator-review-drive/scripts/), [`references/RUNS.md`](../skills/coordinator-review-drive/references/RUNS.md) (preflight, whole-path replay, page acceptance) and the browser notes in [`references/DISPATCH.md`](../skills/coordinator-review-drive/references/DISPATCH.md). Browser setup is optional for projects that do not need page testing.
 
 ## Updates
 
@@ -119,3 +127,5 @@ npx skills update coordinator-review-drive
 ```
 
 For a manual copy, update the source checkout and copy the skill directory again. Keep your goal directories separate so an update does not replace project state. Review the [changelog](../CHANGELOG.md) for behavior or setup changes.
+
+Upgrading an existing goal to 2.0.0: copy `templates/HANDOFF.md` into the goal directory and fill it, replace the goal's `POLICY-HEADER.txt` with the new template (replies now start with `STATUS:`), and add the §0 header of `templates/TASK-CARD.md` to new cards. `launch-lane.sh` refuses an old-format card unless `LEGACY_CARD=1` is set. The stuck detector stays silent until runs are logged with `log-run.sh`.

@@ -1,10 +1,10 @@
 #!/bin/zsh
-# run-dsh.sh — one headless dsh task (e.g. Muse Spark as the fast executor) (coordinator-review-drive).
+# run-dsh.sh — one headless dsh task (e.g. a fast, cheap executor model) (coordinator-review-drive).
 #
 # usage: run-dsh.sh <G> <workdir> <task-file> <out-dir> <provider> <model> <effort> [read-only|workspace-write]
 #   workdir   sandbox root (a lane worktree); default mode workspace-write; never danger-full-access
 #   provider/model/effort  written into a credential-free overlay patch (out-dir/model.patch.yml), e.g.
-#             provider-manager-opencode-go  muse-spark-1.3-contributor  xhigh
+#             <provider-id>  <exact-model-id>  <effort>   (the ids your dsh profile accepts)
 # env:
 #   CRD_DSH_PROFILE        dsh profile to boot (default headless)
 #   CRD_DSH_EXTRA_PATCH    optional second overlay (e.g. an MCP adapter patch for web work)

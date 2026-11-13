@@ -22,4 +22,4 @@ Record the verdict in DECISIONS ("D-NNN 补充 / follow-up: core review PASS —
    record why they are deferred.
 9. Resources: review the temporary-environments list; delete only provably temporary items from an exact list; record it.
 10. Commit: explicit paths only (never `git add -A`/`.`), message names the decision, commit on the lane branch, record
-    the sha in DECISIONS and GOAL-STATE.lanes.
+    the sha in DECISIONS and update the lane's WIP line in HANDOFF.md.

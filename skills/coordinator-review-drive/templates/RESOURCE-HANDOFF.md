@@ -7,7 +7,7 @@ List EVERY resource this task created, even ones already removed. Exact identifi
 | temp dir / basetemp | /abs/path | this task | removed | — |
 | test DB / DB copy | /abs/path.db | this task | removed | — |
 | PG cluster | data dir /abs/path, port 55432, pid 1234 | this task | removed (pg_ctl stop + rm data dir) | — |
-| process | pid 5678 (pgid 5678), port 8099 | this task | kept-running-on-purpose: <why, until when> | `kill -TERM -5678` |
+| process | pid 5678 (pgid 5678), port <port> | this task | kept-running-on-purpose: <why, until when> | `kill -TERM -5678` |
 | browser page/profile | tab/page id or profile dir | this task | removed | — |
 | test project/account in instance | instance :8077, project id 42 | this task | kept-as-evidence: <report ref> | — |
 | worktree / branch | /abs/worktree, branch x | this task | needs-coordinator (sandbox cannot write git metadata) | `git worktree remove /abs/worktree` |

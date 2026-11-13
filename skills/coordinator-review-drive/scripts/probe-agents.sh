@@ -7,9 +7,9 @@
 # directories/files, and host capacity (CPUs, load, free disk). It never opens, reads or prints credentials,
 # tokens, auth/session files or .env files, and it calls no model (no quota is spent).
 # A binary being present does NOT mean the account/model behind it is usable: confirm with the user, and only
-# with the user's consent run one tiny live probe per model (see PLAYBOOK.md "Environment discovery").
+# with the user's consent run one tiny live probe per model (see references/ROUTING.md §1).
 set -u
-B=(codex claude zcode dsh gemini cursor-agent opencode aider gh git node npx python3 perl jq)
+B=(codex claude zcode dsh gemini cursor-agent opencode aider gh git node npx python3 perl jq lsof)
 (( $# )) && B+=("$@")
 
 ver() { perl -e 'alarm shift; exec @ARGV or exit 127' 10 "$@" 2>&1 | grep -m1 -v '^[[:space:]]*$' | cut -c1-80; }
@@ -59,5 +59,5 @@ cat <<'EOF'
    (e.g. Codex model ids, zcode/GLM, dsh provider+model, Claude Opus/Sonnet/Haiku subagents, headless claude -p)?
 2. Quotas/cost limits per agent (5-hour/weekly windows, credits), and which ones are scarce.
 3. Authority: push/merge/deploy, real providers or paid calls, user data/manuscripts, browser accounts.
-4. Language for records/reports. Then record D-001 + GOAL-STATE.environment + ALLOCATION.md.
+4. Language for records/reports. Then record D-001 + GOAL-STATE.environment + ALLOCATION.md, and write HANDOFF.md.
 EOF

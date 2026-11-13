@@ -27,10 +27,11 @@ For `coordinator-review-drive`, keep the following material consistent:
 
 | Change | Review alongside it |
 | --- | --- |
-| Coordinator behavior | `SKILL.md`, `PLAYBOOK.md`, and relevant templates |
-| Wrapper arguments or outputs | Script header, skill README, playbook examples, and lane monitoring |
+| Coordinator behavior | `SKILL.md`, the matching file in `references/`, and relevant templates (`PLAYBOOK.md` only points to `SKILL.md`) |
+| Wrapper arguments or outputs | Script header, skill README, `references/SCRIPTS.md`, `references/DISPATCH.md`, and lane monitoring |
 | A new harness adapter | Discovery list, installation requirements, harness coverage tables, and an offline test |
-| Model allocation guidance | `ALLOCATION.md` and `AGENT-LESSONS.md` templates; retain the conditions behind observations |
+| Model allocation guidance | `references/ROUTING.md`, `ALLOCATION.md` and `AGENT-LESSONS.md` templates; retain the conditions behind observations |
+| An idea adapted from another project | `references/SOURCES.md` and, for a new upstream, `THIRD_PARTY_NOTICES.md` with its license text |
 | Installation paths | Root READMEs, `docs/installation.md`, and the skill guide |
 
 ## Verify the change

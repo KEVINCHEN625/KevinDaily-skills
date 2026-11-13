@@ -10,7 +10,7 @@ Each skill lives in its own directory under `skills/` and can be installed indep
 
 | Skill | What it does | Start here |
 | --- | --- | --- |
-| **`coordinator-review-drive`** | Coordinates local coding harnesses, assigns work by capability and available quota, reviews results, and records model-specific lessons for future tasks. | [Guide](skills/coordinator-review-drive/README.md) · [Example](docs/examples/coordinator-review-drive.md) |
+| **`coordinator-review-drive`** | Drives one main goal to a checkable end state through local coding harnesses: assigns work by capability and quota, reviews results with proof, detects when progress is stuck, and records lessons for future tasks. | [Guide](skills/coordinator-review-drive/README.md) · [Example](docs/examples/coordinator-review-drive.md) |
 
 ## Install a skill
 
@@ -36,9 +36,13 @@ It combines:
 
 - **Environment discovery:** check common local CLI binaries, versions, and configuration presence before assigning work.
 - **Task routing:** choose a harness and model for each role using confirmed availability, task requirements, quota, and previous results.
-- **Parallel execution:** keep independent tasks in separate worktrees, with a task card and output directory for each lane.
-- **Independent review:** review implementation evidence, track unresolved findings, and reserve stronger reviewers for consequential design decisions.
-- **Persistent project memory:** keep decisions, state, routing choices, and model lessons in files so work can resume across sessions.
+- **One main goal, limited work in progress:** every task is on the main track or a side track; at most two side items and six in total run at once, and the main track is never idle while side work runs.
+- **Parallel execution:** keep independent tasks in separate worktrees, with a linted task card and output directory for each lane; each lane runs in its own process group with one waiter.
+- **Stuck detector and unstuck protocol:** a run ledger notices two failed page runs, a blocker that keeps returning, or a goal that has not advanced for 12 hours, and forces a six-step protocol before the next page run: collect all blockers at once, forecast the rest of the path, test the shared premise, replay, cut side work, escalate with options.
+- **Replay before page runs:** a cheap whole-path replay finds every blocker first; a preflight proves which code is serving, reads the instance logs, and refuses a page run without a passing replay.
+- **Reports you can trust:** task cards and replies follow a linted contract (every item answered, commands with quoted output, RED before a fix); reviews carry a proof for each finding, cover every row of a path matrix in one pass, and count findings missed earlier.
+- **Safe actions:** helpers to commit and prove the commit happened, merge only when every check passes and no test is running, stop exactly one lane, and delete computed paths only inside a guarded root.
+- **Persistent project memory:** one `HANDOFF.md` resume file plus decisions, run ledger, routing choices, and model lessons, so work survives context compaction and new sessions.
 
 Try a request such as:
 
@@ -64,6 +68,8 @@ The skill provides instructions and runnable adapters. It needs a coordinator th
 
 Finding a binary does not establish that its account, selected model, or every CLI option works. The workflow confirms those details before live dispatch. Model lessons are observations from project work, not universal model rankings or model training.
 
+Version 2.0.0 adapts ideas, with attribution, from [pstack](https://github.com/cursor/plugins/tree/main/pstack) by Lauren Tan and [Matt Pocock's skills](https://github.com/mattpocock/skills), both MIT licensed. See the skill's [sources](skills/coordinator-review-drive/references/SOURCES.md) and [third-party notices](skills/coordinator-review-drive/THIRD_PARTY_NOTICES.md).
+
 ## Repository organization
 
 | Path | Purpose |
@@ -71,7 +77,8 @@ Finding a binary does not establish that its account, selected model, or every C
 | `skills/<skill-name>/SKILL.md` | Entry point and instructions for the agent |
 | `skills/<skill-name>/scripts/` | Scripts shipped with that skill |
 | `skills/<skill-name>/templates/` | Project records, task cards, and review templates |
-| `skills/coordinator-review-drive/PLAYBOOK.md` | Detailed coordinator procedure for file-capable agents |
+| `skills/<skill-name>/references/` | Detailed procedures the agent reads when a stated trigger fires |
+| `skills/coordinator-review-drive/PLAYBOOK.md` | Short note for agents that are not Claude Code |
 | `docs/installation.md` | Installation, dependencies, and adapter coverage |
 | `docs/examples/` | Walkthroughs showing how to use a skill |
 

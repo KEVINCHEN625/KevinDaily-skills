@@ -58,21 +58,7 @@
     "decision": "D-<NNN>",
     "ledger": "<path or none>"
   },
-  "lanes": [
-    {
-      "id": "<lane id>",
-      "title": "<short>",
-      "decision": "D-<NNN>",
-      "owner_session": "<session-name>",
-      "worktree": "<path>",
-      "branch": "<branch>",
-      "base": "<sha>",
-      "out_dir": "<G/lanes/.../out-...>",
-      "state": "QUEUED | RUNNING | REVIEW | CHANGES_REQUESTED | APPROVED | COMMITTED | MERGED | DEPLOYED | VERIFIED_LIVE | BLOCKED",
-      "commit": "<sha or null>",
-      "next": "<the very next action>"
-    }
-  ],
+  "volatile_state": "lanes, WIP, open blockers and next actions live in G/HANDOFF.md; runs in G/RUNS.tsv; lane truth in the out dirs",
   "batches": [
     {
       "id": "batch-d<NNN>",
@@ -88,6 +74,5 @@
   ],
   "followups": ["<must be fixed before final integration — with decision ids>"],
   "backlog": ["<post-merge / phase-2 items — with decision ids>"],
-  "pending_user": ["<only genuinely new authority or major requirement changes, with exact ! commands if any>"],
-  "next": ["<ordered next actions for a resuming coordinator>"]
+  "pending_user": ["<only genuinely new authority or major requirement changes, with exact ! commands if any>"]
 }

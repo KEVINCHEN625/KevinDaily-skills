@@ -4,7 +4,7 @@
 # usage: run-codex.sh <G> <session-name> <cwd> <read-only|workspace-write> <model> <effort> <prompt-file> <out-dir>
 #   G             project goal dir (sessions are stored in G/sessions/codex/<session-name>.id)
 #   session-name  task-type affinity: the same kind of task always reuses the same name
-#                 (e.g. sol-impl-<area>, sol-web-tester-<surface>, astra-key-plans); first call starts
+#                 (e.g. impl-<area>, web-tester-<surface>, key-plans); first call starts
 #                 a session and records its id, later calls `codex exec resume` it (memory + prompt-cache hits)
 #   CRD_CODEX_EXTRA  optional "-c service_tier=<tier>" only; arbitrary flags could override the sandbox
 #   model/effort  passed straight to codex (-m, -c model_reasoning_effort=...); nothing is hardcoded

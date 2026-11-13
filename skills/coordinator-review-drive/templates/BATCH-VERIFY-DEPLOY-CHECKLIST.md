@@ -54,4 +54,4 @@ Detailed steps and the user handoff message: `templates/DEPLOY-HANDOFF.md`.
 ## 6. Resource handoff / teardown (batch is not closed until done)
 - [ ] Collect every RESOURCE-HANDOFF table from the batch's lanes + your own temp roots/processes/ports.
 - [ ] Produce an exact deletion list, review it, delete only provably temporary items; keep cited failing evidence.
-- [ ] Record freed space and anything kept (with reason) in DECISIONS; update GOAL-STATE.batches[].resources_teardown.
+- [ ] Record freed space and anything kept (with reason) in DECISIONS; update GOAL-STATE.batches[].resources_teardown and HANDOFF.md.

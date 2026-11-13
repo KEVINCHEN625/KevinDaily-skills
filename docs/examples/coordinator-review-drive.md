@@ -54,9 +54,11 @@ The coordinator fills these records as the project develops:
 
 | Record | What belongs there |
 | --- | --- |
+| `HANDOFF.md` | The main goal and its predicate (here: both comparison rules and the UI pass on the real page), progress, active tasks, open blockers, and next actions |
+| `RUNS.tsv` | One row per replay, page or gate run, written by `log-run.sh`; the stuck detector reads it |
 | `DECISIONS.md` | Scope, acceptance criteria, routing decisions, and their reasons |
 | `ALLOCATION.md` | Available harnesses and models, role assignments, quotas, and fallback order |
-| `GOAL-STATE.json` | Current phase, active tasks, next actions, and unresolved decisions |
+| `GOAL-STATE.json` | Environment, authority, sessions, and the agreed gate wording |
 | `AGENT-LESSONS.md` | Observed strengths, failure patterns, and practical instructions for later tasks |
 
 The seed lesson file provides starting guidance. Review its assumptions for the new project and record new observations with enough context to make them useful.
@@ -77,7 +79,22 @@ The coordinator maps these roles to the tools and models actually available. A m
 
 ## 4. Dispatch and collect results
 
-Each task gets a task card, an isolated worktree where needed, and a new output directory. The included wrappers record the requested settings, output, exit code, and completion time.
+Each task gets a task card, an isolated worktree where needed, and a new output directory. The card begins with a short header that `check-card.sh` lints before launch:
+
+```text
+CARD: fix
+TRACK: main
+GOAL: an analyst can compare two completed runs without misreading missing metrics.
+DONE-EVIDENCE: the comparison test for a missing metric shows "unavailable", never 0, on the real service path.
+SCOPE: <worktree>/src/comparison/
+FORBIDDEN: other lanes' files; commit; push.
+ITEMS:
+I1: reproduce the zero-for-missing defect with a failing test
+I2: fix it and show the test passing
+REPLY-CONTRACT — STATUS, GOAL, one line per item, EVIDENCE with commands and output, RESOURCE-HANDOFF.
+```
+
+The included wrappers record the requested settings, output, exit code, and completion time.
 
 For a Codex lane, the command shape is:
 
@@ -85,7 +102,7 @@ For a Codex lane, the command shape is:
 run-codex.sh <goal-dir> <session-name> <worktree> <read-only|workspace-write> <model> <effort> <task-file> <out-dir>
 ```
 
-The coordinator launches the wrapper with `launch-lane.sh` and runs one `wait-lane.sh` per lane through its harness’s background-task mechanism. A waiter reports completion, a dead process, a stall, or a timeout; the coordinator reads the actual result before marking it handled. The full launch and handoff procedure is in [the playbook](../../skills/coordinator-review-drive/PLAYBOOK.md).
+The coordinator launches the wrapper with `launch-lane.sh` and runs one `wait-lane.sh` per lane through its harness’s background-task mechanism. A waiter reports completion, a dead process, a stall, or a timeout, followed by a `REPORT-CHECK` line for the reply; the coordinator reads the actual result before marking it handled. The full launch and handoff procedure is in [references/DISPATCH.md](../../skills/coordinator-review-drive/references/DISPATCH.md).
 
 Use exact model identifiers confirmed for the account. A completed process is evidence that a run ended, not evidence that the requested feature is correct.
 
@@ -99,6 +116,8 @@ A useful model lesson looks like this:
 
 This observation explains the task, the condition for success, and the residual issue. It is more actionable than labeling a model “good at frontend” without context. The coordinator can use it when assigning the next similar task.
 
+Before a page test, `preflight-run.sh` checks which code each port serves, scans the instance logs, and requires a passing whole-path replay on the same commit. If two page runs fail, or the same blocker keeps returning, `goal-check.sh` reports `STUCK` and the coordinator follows the unstuck protocol before trying again.
+
 The final handoff should identify what changed, the evidence collected, open limitations, and the next action if the goal is not finished.
 
 ## 6. Resume later
@@ -107,7 +126,7 @@ Keep the same goal directory and ask:
 
 ```text
 请继续 coordinator-review-drive 的 performance-comparison 目标。
-先读取该 goal 目录里的状态、最近决策和模型经验，检查各任务的输出，
+先读取该 goal 目录里的 HANDOFF.md 并运行 goal-check.sh，检查各任务的输出，
 从尚未完成的下一步继续。
 ```
 
